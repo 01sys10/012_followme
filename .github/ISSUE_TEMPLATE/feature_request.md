@@ -1,0 +1,44 @@
+---
+name: Feature request
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
+
+name: ✨ 기능 개발
+description: 기능 관련 이슈
+title: "✨ Feature: "
+labels: ["✨ feat"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 📌 개요
+      description: 기능의 목적과 핵심 내용을 설명해주세요.
+      placeholder: 예) 사용자 프로필 편집 기능 구현
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: 📋 작업 항목 (Checklist)
+      description: 구현해야 할 세부 작업을 적어주세요.
+      placeholder: |
+        - [ ] UI 레이아웃 구성
+        - [ ] 프로필 이미지 업로드 기능 추가
+        - [ ] 수정 API 연동
+      value: "- [ ] "
+    validations:
+      required: true
+
+  - type: textarea
+    id: reference
+    attributes:
+      label: 🔗 참고 자료
+      description: Figma, Notion, API 명세 등 있으면 추가해주세요.
+      placeholder: ex) Figma 디자인 링크
+    validations:
+      required: false
