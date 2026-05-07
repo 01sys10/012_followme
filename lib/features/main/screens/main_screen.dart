@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:follow_me/core/services/gemma_service.dart';
 import 'package:follow_me/features/daily_prediction/services/prediction_service.dart';
 import 'package:follow_me/features/diary/screens/diary_write_screen.dart';
 import 'package:follow_me/shared/widgets/teal_button.dart';
@@ -51,7 +52,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     });
     await PredictionService.generateAndSave();
     await _loadPrediction();
-    if (mounted) setState(() => _isGenerating = false);
+    if (!mounted) return;
+    setState(() => _isGenerating = false);
+    if (GemmaService.lastError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '오류: ${GemmaService.lastError}',
+            style: const TextStyle(fontSize: 12),
+          ),
+          backgroundColor: const Color(0xFFD94C4C),
+          duration: const Duration(seconds: 6),
+        ),
+      );
+    }
   }
 
   bool get _allDone =>
