@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:follow_me/core/services/gemma_service.dart';
 import 'package:follow_me/features/daily_prediction/services/prediction_service.dart';
 import 'package:follow_me/features/diary/screens/diary_write_screen.dart';
+import 'package:follow_me/features/schedule_input/screens/schedule_tab_screen.dart';
 import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
 import 'package:follow_me/shared/widgets/teal_button.dart';
 
@@ -82,7 +83,19 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           padding: const EdgeInsets.only(bottom: 16),
           child: FloatingTabBar(
             selectedIndex: _selectedTab,
-            onTap: (i) => setState(() => _selectedTab = i),
+            onTap: (i) {
+              if (i == 0) {
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondary) => const ScheduleTabScreen(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                );
+              } else {
+                setState(() => _selectedTab = i);
+              }
+            },
           ),
         ),
       ),

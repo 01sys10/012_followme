@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:follow_me/core/services/user_data_service.dart';
-import 'package:follow_me/features/main/screens/main_screen.dart';
 import 'package:follow_me/features/schedule_input/models/timetable_entry.dart';
 import 'package:follow_me/shared/widgets/entry_form_sheet.dart';
-import 'package:follow_me/shared/widgets/next_button.dart';
+import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
 import 'package:follow_me/shared/widgets/timetable_grid.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class OnboardingTimetableScreen extends StatefulWidget {
-  const OnboardingTimetableScreen({super.key, required this.userName});
-
-  final String userName;
+class ScheduleTabScreen extends StatefulWidget {
+  const ScheduleTabScreen({super.key});
 
   @override
-  State<OnboardingTimetableScreen> createState() =>
-      _OnboardingTimetableScreenState();
+  State<ScheduleTabScreen> createState() => _ScheduleTabScreenState();
 }
 
-class _OnboardingTimetableScreenState
-    extends State<OnboardingTimetableScreen> {
-  final List<TimetableEntry> _entries = [];
+class _ScheduleTabScreenState extends State<ScheduleTabScreen> {
+  List<TimetableEntry> _entries = [];
   TimetableEntry? _previewEntry;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final entries = await UserDataService.getTimetable();
+    if (mounted) {
+      setState(() {
+        _entries = entries;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _save() => UserDataService.saveTimetable(_entries);
 
   void _showAddSheet() {
     showModalBottomSheet(
@@ -32,7 +45,10 @@ class _OnboardingTimetableScreenState
         child: EntryFormSheet(
           existingEntries: _entries,
           onPreviewChange: (e) => setState(() => _previewEntry = e),
-          onSave: (e) => setState(() => _entries.add(e)),
+          onSave: (e) {
+            setState(() => _entries.add(e));
+            _save();
+          },
         ),
       ),
     ).then((_) => setState(() => _previewEntry = null));
@@ -74,6 +90,7 @@ class _OnboardingTimetableScreenState
   }
 
   void _showEditSheet(TimetableEntry entry) {
+    // 수정 중인 항목을 목록에서 임시 제거해 미리보기만 표시
     setState(() => _entries.remove(entry));
     bool saved = false;
     final others = List<TimetableEntry>.from(_entries);
@@ -91,12 +108,13 @@ class _OnboardingTimetableScreenState
           onSave: (updated) {
             saved = true;
             setState(() => _entries.add(updated));
+            _save();
           },
         ),
       ),
     ).then((_) {
       setState(() {
-        if (!saved) _entries.add(entry);
+        if (!saved) _entries.add(entry); // 취소 시 원래 항목 복원
         _previewEntry = null;
       });
     });
@@ -137,96 +155,81 @@ class _OnboardingTimetableScreenState
     );
     if (confirmed == true && mounted) {
       setState(() => _entries.remove(entry));
+      await _save();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: Colors.white,
+      extendBody: true,
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: FloatingTabBar(
+            selectedIndex: 0,
+            onTap: (i) {
+              if (i != 0) Navigator.of(context).pop();
+            },
+          ),
+        ),
+      ),
       body: SafeArea(
+        bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 33),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                '고정 일정을 알려주세요',
-                style: TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 24,
-                  height: 32 / 24,
-                  color: Color(0xFF262626),
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                '일주일 시간표를 만들어주세요.',
-                style: TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 15,
-                  height: 22 / 15,
-                  color: Color(0xFF6F6F6F),
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Expanded(
-              child: TimetableGrid(
-                entries: _entries,
-                previewEntry: _previewEntry,
-                onEntryTap: _onEntryTap,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: GestureDetector(
-                onTap: _showAddSheet,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x1F000000),
-                        blurRadius: 40,
-                        offset: Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.add,
-                    color: Color(0xFF1A1A1A),
-                    size: 22,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: NextButton(
-                onTap: () async {
-                  await UserDataService.saveTimetable(_entries);
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('onboarding_complete', true);
-                  if (!context.mounted) return;
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const MainScreen()),
-                    (_) => false,
-                  );
-                },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '주간 일정',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 24,
+                      height: 32 / 24,
+                      color: Color(0xFF262626),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _showAddSheet,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE9F7F7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Color(0xFF208484),
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
+            Expanded(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF208484),
+                      ),
+                    )
+                  : TimetableGrid(
+                      entries: _entries,
+                      previewEntry: _previewEntry,
+                      onEntryTap: _onEntryTap,
+                    ),
+            ),
+            const SizedBox(height: 100),
           ],
         ),
       ),
