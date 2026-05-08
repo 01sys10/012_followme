@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:follow_me/core/services/gemma_service.dart';
 import 'package:follow_me/features/daily_prediction/services/prediction_service.dart';
 import 'package:follow_me/features/diary/screens/diary_write_screen.dart';
+import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
 import 'package:follow_me/shared/widgets/teal_button.dart';
 
 class MainScreen extends StatefulWidget {
@@ -75,41 +76,35 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 33),
-                  _buildLogo(),
-                  const SizedBox(height: 24),
-                  _buildMissionSection(),
-                  const SizedBox(height: 30),
-                  _buildFortuneSection(),
-                  const SizedBox(height: 30),
-                  Center(child: _buildDiaryButton()),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
+      extendBody: true,
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: FloatingTabBar(
+            selectedIndex: _selectedTab,
+            onTap: (i) => setState(() => _selectedTab = i),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildTabBar(),
-              ),
-            ),
+        ),
+      ),
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 100),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 33),
+              _buildLogo(),
+              const SizedBox(height: 24),
+              _buildMissionSection(),
+              const SizedBox(height: 30),
+              _buildFortuneSection(),
+              const SizedBox(height: 30),
+              Center(child: _buildDiaryButton()),
+              const SizedBox(height: 20),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -510,74 +505,4 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildTabBar() {
-    const tabs = [
-      (icon: Icons.calendar_month, label: '주간 일정'),
-      (icon: Icons.task_alt, label: '미션'),
-      (icon: Icons.settings, label: '설정'),
-    ];
-
-    return Center(
-      child: Container(
-        width: 302,
-        height: 62,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(296),
-          color: const Color(0xFFF7F7F7),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x1F000000),
-              blurRadius: 40,
-              offset: Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Row(
-          children: List.generate(3, (i) {
-            final selected = i == _selectedTab;
-            return Expanded(
-              child: GestureDetector(
-                onTap: () => setState(() => _selectedTab = i),
-                behavior: HitTestBehavior.opaque,
-                child: Container(
-                  height: 62,
-                  decoration: selected
-                      ? BoxDecoration(
-                          color: const Color(0xFFEDEDED),
-                          borderRadius: BorderRadius.circular(100),
-                        )
-                      : null,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        tabs[i].icon,
-                        size: 18,
-                        color: selected
-                            ? const Color(0xFF208484)
-                            : const Color(0xFF1A1A1A),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        tabs[i].label,
-                        style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 10,
-                          height: 12 / 10,
-                          color: selected
-                              ? const Color(0xFF208484)
-                              : const Color(0xFF1A1A1A),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
-      ),
-    );
-  }
 }

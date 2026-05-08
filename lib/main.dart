@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: startWithMain ? const MainScreen() : const SignupScreen(),
+      // home: const SignupScreen() // 온보딩부터 시작하는 테스트 용
     );
   }
 }
