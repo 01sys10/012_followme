@@ -6,14 +6,14 @@ import 'package:follow_me/features/schedule_input/screens/schedule_tab_screen.da
 import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
 import 'package:follow_me/shared/widgets/teal_button.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _selectedTab = 1;
   bool _showTooltip = false;
   List<bool> _missionChecked = [false, false, false, false];

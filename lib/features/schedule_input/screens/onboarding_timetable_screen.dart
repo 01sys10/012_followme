@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:follow_me/core/services/user_data_service.dart';
-import 'package:follow_me/features/main/screens/main_screen.dart';
+import 'package:follow_me/features/home/screens/home_screen.dart';
 import 'package:follow_me/features/schedule_input/models/timetable_entry.dart';
 import 'package:follow_me/shared/widgets/entry_form_sheet.dart';
 import 'package:follow_me/shared/widgets/next_button.dart';
@@ -220,7 +220,7 @@ class _OnboardingTimetableScreenState
                   await prefs.setBool('onboarding_complete', true);
                   if (!context.mounted) return;
                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const MainScreen()),
+                    MaterialPageRoute(builder: (_) => const HomeScreen()),
                     (_) => false,
                   );
                 },
