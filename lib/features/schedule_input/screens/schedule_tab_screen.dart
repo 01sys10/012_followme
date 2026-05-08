@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:follow_me/core/services/user_data_service.dart';
+import 'package:follow_me/features/diary/screens/diary_calendar_screen.dart';
 import 'package:follow_me/features/schedule_input/models/timetable_entry.dart';
 import 'package:follow_me/shared/widgets/entry_form_sheet.dart';
 import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
@@ -196,21 +197,46 @@ class _ScheduleTabScreenState extends State<ScheduleTabScreen> {
                       color: Color(0xFF262626),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: _showAddSheet,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE9F7F7),
-                        borderRadius: BorderRadius.circular(20),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const DiaryCalendarScreen(),
+                          ),
+                        ),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE9F7F7),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Icon(
+                            Icons.book_outlined,
+                            color: Color(0xFF208484),
+                            size: 20,
+                          ),
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Color(0xFF208484),
-                        size: 22,
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: _showAddSheet,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE9F7F7),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Icon(
+                            Icons.add,
+                            color: Color(0xFF208484),
+                            size: 22,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
