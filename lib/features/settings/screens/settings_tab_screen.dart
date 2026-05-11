@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:follow_me/core/services/user_data_service.dart';
 import 'package:follow_me/features/onboarding/screens/personality_test_screen.dart';
+import 'package:follow_me/features/settings/screens/personality_detail_screen.dart';
 import 'package:follow_me/features/settings/screens/settings_personality_result_screen.dart';
 import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
 
@@ -228,7 +229,13 @@ class _SettingsTabScreenState extends State<SettingsTabScreen> {
                                       ),
                                       const SizedBox(height: 8),
                                       GestureDetector(
-                                        onTap: () {},
+                                        onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const PersonalityDetailScreen(
+                                                    isIdeal: false),
+                                          ),
+                                        ),
                                         child: Container(
                                           width: double.infinity,
                                           padding: const EdgeInsets.symmetric(
@@ -271,7 +278,13 @@ class _SettingsTabScreenState extends State<SettingsTabScreen> {
                                       ),
                                       const SizedBox(height: 8),
                                       GestureDetector(
-                                        onTap: () {},
+                                        onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const PersonalityDetailScreen(
+                                                    isIdeal: true),
+                                          ),
+                                        ),
                                         child: Container(
                                           width: double.infinity,
                                           padding: const EdgeInsets.symmetric(
