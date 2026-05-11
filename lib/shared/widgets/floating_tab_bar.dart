@@ -18,9 +18,10 @@ class FloatingTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [Container(
+    return Align(
+      alignment: Alignment.center,
+      heightFactor: 1.0,
+      child: Container(
         width: 302,
         height: 62,
         decoration: BoxDecoration(
@@ -54,18 +55,18 @@ class FloatingTabBar extends StatelessWidget {
                     children: [
                       Icon(
                         _tabs[i].icon,
-                        size: 18,
+                        size: 24,
                         color: selected
                             ? const Color(0xFF208484)
                             : const Color(0xFF1A1A1A),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 6),
                       Text(
                         _tabs[i].label,
                         style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w600,
-                          fontSize: 10,
+                          fontSize: 12,
                           height: 12 / 10,
                           color: selected
                               ? const Color(0xFF208484)
@@ -79,7 +80,7 @@ class FloatingTabBar extends StatelessWidget {
             );
           }),
         ),
-      )],
+      ),
     );
   }
 }
