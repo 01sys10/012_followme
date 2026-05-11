@@ -4,7 +4,10 @@ import 'package:follow_me/features/diary/models/diary_entry.dart';
 import 'package:follow_me/shared/widgets/teal_button.dart';
 
 class DiaryWriteScreen extends StatefulWidget {
-  const DiaryWriteScreen({super.key});
+  const DiaryWriteScreen({super.key, this.date});
+
+  /// 특정 날짜의 일기를 작성할 때 지정. null이면 오늘 날짜로 저장.
+  final DateTime? date;
 
   @override
   State<DiaryWriteScreen> createState() => _DiaryWriteScreenState();
@@ -12,7 +15,6 @@ class DiaryWriteScreen extends StatefulWidget {
 
 class _DiaryWriteScreenState extends State<DiaryWriteScreen> {
   final _controller = TextEditingController();
-  int _selectedTab = 1;
 
   @override
   void dispose() {
@@ -20,196 +22,164 @@ class _DiaryWriteScreenState extends State<DiaryWriteScreen> {
     super.dispose();
   }
 
-  bool get _keyboardOpen => MediaQuery.viewInsetsOf(context).bottom > 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 33),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    '일기 쓰기',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 24,
-                      height: 32 / 24,
-                      color: Color(0xFF262626),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    '자세히 쓸 수록 앞으로 제공되는 운세의 정확도가 높아져요.',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                      height: 22 / 14,
-                      color: Color(0xFF6F6F6F),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 33),
-                // 일기 입력 영역
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Container(
-                      height: 300,
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 15,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE9F7F7),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TextField(
-                        controller: _controller,
-                        maxLines: null,
-                        expands: true,
-                        textAlignVertical: TextAlignVertical.top,
-                        onChanged: (_) => setState(() {}),
-                        style: const TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                          height: 24 / 14,
-                          color: Color(0xFF222222),
-                        ),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: '오늘 하루를 기록해보세요.',
-                          hintStyle: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            height: 24 / 14,
-                            color: Color(0xFF8D8D8D),
-                          ),
-                        ),
-                      ),
-                    ),
-                ),
-                const SizedBox(height: 24),
-                // 완료 버튼
-                Center(
-                  child: TealButton(
-                    label: '완료',
-                    onTap: () async {
-                      final text = _controller.text.trim();
-                      if (text.isEmpty) return;
-                      // TODO: 비식별화 처리 후 저장
-                      await DiaryDatabase.insert(
-                        DiaryEntry(text: text, createdAt: DateTime.now()),
-                      );
-                      if (!context.mounted) return;
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ),
-                SizedBox(height: _keyboardOpen ? 16 : 100),
-              ],
-            ),
+  Future<void> _handleClose() async {
+    if (_controller.text.trim().isNotEmpty) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text(
+            '일기 작성 취소',
+            style: TextStyle(
+                fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
           ),
-          // 플로팅 탭바 (키보드 닫혔을 때만 표시)
-          if (!_keyboardOpen)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _buildTabBar(),
-                ),
-              ),
+          content: const Text(
+            '지금까지 쓴 일기가 사라져요.',
+            style: TextStyle(fontFamily: 'Pretendard'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('취소',
+                  style: TextStyle(color: Color(0xFF6F6F6F))),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabBar() {
-    const tabs = [
-      (icon: Icons.calendar_month, label: '주간 일정'),
-      (icon: Icons.task_alt, label: '미션'),
-      (icon: Icons.settings, label: '설정'),
-    ];
-
-    return Center(
-      child: Container(
-        width: 302,
-        height: 62,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(296),
-          color: const Color(0xFFF7F7F7),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x1F000000),
-              blurRadius: 40,
-              offset: Offset(0, 8),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('확인',
+                  style: TextStyle(color: Color(0xFF208484))),
             ),
           ],
         ),
-        child: Row(
-          children: List.generate(3, (i) {
-            final selected = i == _selectedTab;
-            return Expanded(
-              child: GestureDetector(
-                onTap: () => setState(() => _selectedTab = i),
-                behavior: HitTestBehavior.opaque,
-                child: Container(
-                  height: 62,
-                  decoration: selected
-                      ? BoxDecoration(
-                          color: const Color(0xFFEDEDED),
-                          borderRadius: BorderRadius.circular(100),
-                        )
-                      : null,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        tabs[i].icon,
-                        size: 18,
-                        color: selected
-                            ? const Color(0xFF208484)
-                            : const Color(0xFF1A1A1A),
+      );
+      if (confirmed == true && mounted) Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pop();
+    }
+  }
+
+  String _formatDate(DateTime d) {
+    const weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+    return '${d.year}년 ${d.month}월 ${d.day}일 (${weekdays[d.weekday - 1]})';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final targetDate = widget.date;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _handleClose();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 33),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '일기 쓰기',
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 24,
+                        height: 32 / 24,
+                        color: Color(0xFF262626),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        tabs[i].label,
-                        style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 10,
-                          height: 12 / 10,
-                          color: selected
-                              ? const Color(0xFF208484)
-                              : const Color(0xFF1A1A1A),
-                        ),
+                    ),
+                    GestureDetector(
+                      onTap: _handleClose,
+                      child: const Icon(
+                        Icons.close,
+                        size: 24,
+                        color: Color(0xFF6F6F6F),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  targetDate != null
+                      ? _formatDate(targetDate)
+                      : '자세히 쓸 수록 앞으로 제공되는 운세의 정확도가 높아져요.',
+                  style: const TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    height: 22 / 14,
+                    color: Color(0xFF6F6F6F),
                   ),
                 ),
               ),
-            );
-          }),
+              const SizedBox(height: 33),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  height: 300,
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 15),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE9F7F7),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: TextField(
+                    controller: _controller,
+                    maxLines: null,
+                    expands: true,
+                    textAlignVertical: TextAlignVertical.top,
+                    onChanged: (_) => setState(() {}),
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      height: 24 / 14,
+                      color: Color(0xFF222222),
+                    ),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: '오늘 하루를 기록해보세요.',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        height: 24 / 14,
+                        color: Color(0xFF8D8D8D),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: TealButton(
+                  label: '완료',
+                  onTap: () async {
+                    final text = _controller.text.trim();
+                    if (text.isEmpty) return;
+                    await DiaryDatabase.insert(
+                      DiaryEntry(
+                        text: text,
+                        createdAt: targetDate ?? DateTime.now(),
+                      ),
+                    );
+                    if (!context.mounted) return;
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );

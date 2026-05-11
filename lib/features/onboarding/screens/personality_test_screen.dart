@@ -13,6 +13,7 @@ class PersonalityTestScreen extends StatefulWidget {
     required this.cardBgColor,
     required this.onComplete,
     this.titleWidget,
+    this.showExitConfirm = false,
   });
 
   final String title;
@@ -21,6 +22,7 @@ class PersonalityTestScreen extends StatefulWidget {
   final Color cardBgColor;
   final void Function(List<int> scores) onComplete;
   final Widget? titleWidget;
+  final bool showExitConfirm;
 
   @override
   State<PersonalityTestScreen> createState() => _PersonalityTestScreenState();
@@ -36,6 +38,42 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
   int _currentIndex = 0;
   final List<int?> _scores = List.filled(kPersonalityQuestions.length, null);
   bool _advancing = false;
+
+  Future<void> _handleExit() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(
+          '검사를 그만할까요?',
+          style: TextStyle(
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: const Text(
+          '지금까지 한 테스트가 저장되지 않아요.',
+          style: TextStyle(fontFamily: 'Pretendard'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text(
+              '계속하기',
+              style: TextStyle(color: Color(0xFF6F6F6F)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text(
+              '나가기',
+              style: TextStyle(color: Color(0xFFD94C4C)),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) Navigator.of(context).pop();
+  }
 
   Future<void> _selectOption(int score) async {
     if (_advancing) return;
@@ -61,42 +99,61 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
   Widget build(BuildContext context) {
     final progress = (_currentIndex + 1) / kPersonalityQuestions.length;
 
-    return Scaffold(
-      backgroundColor: _bgColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        backgroundColor: _unselectedColor,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          widget.accentColor,
-                        ),
-                        minHeight: 4,
+    return PopScope(
+      canPop: !widget.showExitConfirm,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _handleExit();
+      },
+      child: Scaffold(
+        backgroundColor: _bgColor,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                if (widget.showExitConfirm) ...[
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: _handleExit,
+                      child: const Icon(
+                        Icons.close,
+                        size: 24,
+                        color: Color(0xFF6F6F6F),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '${_currentIndex + 1}/${kPersonalityQuestions.length}',
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
-                      fontSize: 13,
-                      color: _subtitleColor,
-                    ),
-                  ),
+                  const SizedBox(height: 12),
                 ],
-              ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: _unselectedColor,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            widget.accentColor,
+                          ),
+                          minHeight: 4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      '${_currentIndex + 1}/${kPersonalityQuestions.length}',
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 13,
+                        color: _subtitleColor,
+                      ),
+                    ),
+                  ],
+                ),
               const SizedBox(height: 20),
               widget.titleWidget ??
                   Text(
@@ -167,7 +224,8 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

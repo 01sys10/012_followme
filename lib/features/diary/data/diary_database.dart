@@ -44,4 +44,27 @@ class DiaryDatabase {
     final db = await _instance;
     await db.delete(_table, where: 'id = ?', whereArgs: [id]);
   }
+
+  /// 특정 날짜의 일기 목록 (YYYY-MM-DD 기준)
+  static Future<List<DiaryEntry>> getByDate(DateTime date) async {
+    final db = await _instance;
+    final prefix =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final rows = await db.query(
+      _table,
+      where: 'created_at LIKE ?',
+      whereArgs: ['$prefix%'],
+      orderBy: 'created_at ASC',
+    );
+    return rows.map(DiaryEntry.fromMap).toList();
+  }
+
+  /// 일기가 존재하는 날짜 집합 ("yyyy-MM-dd" 형식)
+  static Future<Set<String>> getWrittenDates() async {
+    final db = await _instance;
+    final rows = await db.rawQuery(
+      'SELECT SUBSTR(created_at, 1, 10) AS d FROM $_table GROUP BY d',
+    );
+    return rows.map((r) => r['d'] as String).toSet();
+  }
 }
