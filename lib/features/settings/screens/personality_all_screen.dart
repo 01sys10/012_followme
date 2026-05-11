@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:follow_me/features/settings/screens/personality_detail_screen.dart';
 import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
 
 class PersonalityAllScreen extends StatelessWidget {
@@ -71,8 +72,14 @@ class PersonalityAllScreen extends StatelessWidget {
                     childAspectRatio: 0.85,
                   ),
                   itemCount: 6,
-                  itemBuilder: (_, index) => _PersonalityGridCard(
-                    color: _teal,
+                  itemBuilder: (ctx, index) => GestureDetector(
+                    onTap: () => Navigator.of(ctx).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const PersonalityDetailScreen(isIdeal: false),
+                      ),
+                    ),
+                    child: _PersonalityGridCard(color: _teal),
                   ),
                 ),
               ),
