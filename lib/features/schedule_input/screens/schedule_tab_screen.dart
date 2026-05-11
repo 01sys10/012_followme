@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:follow_me/core/services/user_data_service.dart';
 import 'package:follow_me/features/diary/screens/diary_calendar_screen.dart';
 import 'package:follow_me/features/schedule_input/models/timetable_entry.dart';
+import 'package:follow_me/features/settings/screens/settings_tab_screen.dart';
 import 'package:follow_me/shared/widgets/entry_form_sheet.dart';
 import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
 import 'package:follow_me/shared/widgets/timetable_grid.dart';
@@ -171,7 +172,18 @@ class _ScheduleTabScreenState extends State<ScheduleTabScreen> {
           child: FloatingTabBar(
             selectedIndex: 0,
             onTap: (i) {
-              if (i != 0) Navigator.of(context).pop();
+              if (i == 2) {
+                Navigator.of(context).pushReplacement(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondary) =>
+                        const SettingsTabScreen(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                );
+              } else if (i != 0) {
+                Navigator.of(context).pop();
+              }
             },
           ),
         ),
