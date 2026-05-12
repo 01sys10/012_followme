@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:follow_me/core/services/user_data_service.dart';
 import 'package:follow_me/features/schedule_input/screens/onboarding_timetable_screen.dart';
@@ -67,6 +68,7 @@ class OnboardingPersonalityResultScreen extends StatelessWidget {
                       accentColor: const Color(0xFF208484),
                       typeName: myTypeName,
                       description: myTypeDesc,
+                      scores: myPersonalityScores,
                     ),
                     const SizedBox(height: 49),
                     const Text(
@@ -85,6 +87,7 @@ class OnboardingPersonalityResultScreen extends StatelessWidget {
                       accentColor: const Color(0xFFEEC22A),
                       typeName: idealTypeName,
                       description: idealTypeDesc,
+                      scores: idealPersonalityScores,
                     ),
                     const SizedBox(height: 32),
                   ],
@@ -124,12 +127,14 @@ class _PersonalityCard extends StatelessWidget {
     required this.accentColor,
     required this.typeName,
     required this.description,
+    required this.scores,
   });
 
   final Color bgColor;
   final Color accentColor;
   final String typeName;
   final String description;
+  final List<int> scores;
 
   @override
   Widget build(BuildContext context) {
@@ -158,10 +163,13 @@ class _PersonalityCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                width: 75,
-                height: 72,
+                width: 100,
+                height: 100,
                 child: CustomPaint(
-                  painter: _TrianglePainter(accentColor),
+                  painter: _HexagonPainter(
+                    accentColor: accentColor,
+                    scores: scores,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
@@ -185,26 +193,89 @@ class _PersonalityCard extends StatelessWidget {
   }
 }
 
-class _TrianglePainter extends CustomPainter {
-  const _TrianglePainter(this.color);
+class _HexagonPainter extends CustomPainter {
+  const _HexagonPainter({
+    required this.accentColor,
+    required this.scores,
+  });
 
-  final Color color;
+  final Color accentColor;
+  final List<int> scores; // 6개의 카테고리 점수 [0-25점]
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+    final maxRadius = size.width / 2.5; // 최대 반지름
+
+    // 배경 육각형 그리기 (밝은 회색)
+    final bgPaint = Paint()
+      ..color = accentColor.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
-    final path = Path()
-      ..moveTo(0, 0)
-      ..lineTo(size.width, size.height / 2)
-      ..lineTo(0, size.height)
-      ..close();
+    final bgPoints = <Offset>[];
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 60 - 90) * math.pi / 180; // 0번이 12시 방향
+      final x = centerX + maxRadius * math.cos(angle);
+      final y = centerY + maxRadius * math.sin(angle);
+      bgPoints.add(Offset(x, y));
+    }
 
-    canvas.drawPath(path, paint);
+    final bgPath = Path()
+      ..moveTo(bgPoints[0].dx, bgPoints[0].dy);
+    for (int i = 1; i < 6; i++) {
+      bgPath.lineTo(bgPoints[i].dx, bgPoints[i].dy);
+    }
+    bgPath.close();
+    canvas.drawPath(bgPath, bgPaint);
+
+    // 배경 육각형 테두리 그리기
+    final borderPaint = Paint()
+      ..color = accentColor.withValues(alpha: 0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    canvas.drawPath(bgPath, borderPaint);
+
+    // 실제 점수 데이터 육각형 그리기
+    final dataPoints = <Offset>[];
+    for (int i = 0; i < 6; i++) {
+      final angle = (i * 60 - 90) * math.pi / 180;
+      // 점수 정규화 (0-25 → 0-1)
+      final normalized = (scores[i] / 25).clamp(0.0, 1.0);
+      final radius = maxRadius * normalized;
+      final x = centerX + radius * math.cos(angle);
+      final y = centerY + radius * math.sin(angle);
+      dataPoints.add(Offset(x, y));
+    }
+
+    final dataPath = Path()
+      ..moveTo(dataPoints[0].dx, dataPoints[0].dy);
+    for (int i = 1; i < 6; i++) {
+      dataPath.lineTo(dataPoints[i].dx, dataPoints[i].dy);
+    }
+    dataPath.close();
+
+    // 데이터 영역 채우기
+    final fillPaint = Paint()
+      ..color = accentColor.withValues(alpha: 0.3)
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(dataPath, fillPaint);
+
+    // 데이터 라인 그리기
+    final linePaint = Paint()
+      ..color = accentColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawPath(dataPath, linePaint);
+
+    // 중심에 점 그리기
+    final centerPointPaint = Paint()
+      ..color = accentColor
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(centerX, centerY), 4, centerPointPaint);
   }
 
   @override
-  bool shouldRepaint(_TrianglePainter old) => old.color != color;
+  bool shouldRepaint(_HexagonPainter old) =>
+      old.accentColor != accentColor || old.scores != scores;
 }

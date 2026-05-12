@@ -37,6 +37,26 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
   final List<int?> _scores = List.filled(kPersonalityQuestions.length, null);
   bool _advancing = false;
 
+  /// 질문별 점수를 카테고리별(6개)로 합산
+  /// 각 카테고리는 5개 질문 (1-5, 6-10, 11-15, 16-20, 21-25, 26-30)
+  /// 결과: [category0_sum, category1_sum, ..., category5_sum]
+  List<int> _aggregateScores() {
+    final result = <int>[];
+    const questionsPerCategory = 5;
+    const totalCategories = 6;
+
+    for (int i = 0; i < totalCategories; i++) {
+      int sum = 0;
+      for (int j = 0; j < questionsPerCategory; j++) {
+        final index = i * questionsPerCategory + j;
+        sum += _scores[index] ?? 0;
+      }
+      result.add(sum);
+    }
+
+    return result;
+  }
+
   Future<void> _selectOption(int score) async {
     if (_advancing) return;
     setState(() {
@@ -53,7 +73,8 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
         _advancing = false;
       });
     } else {
-      widget.onComplete(List<int>.from(_scores.map((s) => s ?? 3)));
+      final aggregatedScores = _aggregateScores();
+      widget.onComplete(aggregatedScores);
     }
   }
 
