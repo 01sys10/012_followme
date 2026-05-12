@@ -6,6 +6,7 @@ class TimetableEntry {
     required this.startMinute,
     required this.endHour,
     required this.endMinute,
+    this.colorValue = 0xD9208484,
   });
 
   final String name;
@@ -14,6 +15,7 @@ class TimetableEntry {
   final int startMinute;
   final int endHour;
   final int endMinute;
+  final int colorValue;
 
   static const dayLabels = ['월', '화', '수', '목', '금', '토', '일'];
   static const dayFullLabels = [
@@ -43,6 +45,7 @@ class TimetableEntry {
         'startMinute': startMinute,
         'endHour': endHour,
         'endMinute': endMinute,
+        'colorValue': colorValue,
       };
 
   factory TimetableEntry.fromMap(Map<String, dynamic> map) => TimetableEntry(
@@ -52,5 +55,6 @@ class TimetableEntry {
         startMinute: map['startMinute'] as int,
         endHour: map['endHour'] as int,
         endMinute: map['endMinute'] as int,
+        colorValue: (map['colorValue'] as int?) ?? 0xD9208484,
       );
 }

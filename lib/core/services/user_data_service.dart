@@ -9,6 +9,7 @@ class UserDataService {
   static const _keyMyScores = 'my_personality_scores';
   static const _keyIdealScores = 'ideal_personality_scores';
   static const _keyTimetable = 'timetable_entries';
+  static const _keyTotalMissionsDone = 'total_missions_done';
 
   static Future<void> saveProfile({
     required String name,
@@ -74,5 +75,26 @@ class UserDataService {
     return list
         .map((e) => TimetableEntry.fromMap(e as Map<String, dynamic>))
         .toList();
+  }
+
+  static Future<void> saveMyScores(List<int> scores) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyMyScores, jsonEncode(scores));
+  }
+
+  static Future<void> saveIdealScores(List<int> scores) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyIdealScores, jsonEncode(scores));
+  }
+
+  static Future<int> getTotalMissionsDone() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_keyTotalMissionsDone) ?? 0;
+  }
+
+  static Future<void> incrementMissionsDone(int delta) async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = prefs.getInt(_keyTotalMissionsDone) ?? 0;
+    await prefs.setInt(_keyTotalMissionsDone, (current + delta).clamp(0, 1000000));
   }
 }
