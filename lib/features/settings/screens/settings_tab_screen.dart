@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:follow_me/core/services/user_data_service.dart';
+import 'package:follow_me/features/onboarding/screens/personality_questions.dart';
 import 'package:follow_me/features/onboarding/screens/personality_test_screen.dart';
 import 'package:follow_me/features/settings/screens/personality_detail_screen.dart';
 import 'package:follow_me/features/settings/screens/settings_personality_result_screen.dart';
@@ -50,6 +51,7 @@ class _SettingsTabScreenState extends State<SettingsTabScreen> {
         subtitle: '성향을 분석할게요.',
         accentColor: const Color(0xFF208484),
         cardBgColor: const Color(0xFFE9F7F7),
+        questions: kPersonalityQuestions,
         showExitConfirm: true,
         onComplete: (scores) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -73,6 +75,7 @@ class _SettingsTabScreenState extends State<SettingsTabScreen> {
         subtitle: "'이렇게 행동하는 사람이 되고 싶다' 하는 걸 골라주세요.",
         accentColor: const Color(0xFFEEC22A),
         cardBgColor: const Color(0xFFFEF6DA),
+        questions: kPersonalityQuestions,
         showExitConfirm: true,
         onComplete: (scores) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(

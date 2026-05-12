@@ -85,12 +85,10 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
 
   /// 질문별 점수를 카테고리별(6개)로 합산
   /// 각 카테고리는 5개 질문 (1-5, 6-10, 11-15, 16-20, 21-25, 26-30)
-  /// 결과: [category0_sum, category1_sum, ..., category5_sum]
   List<int> _aggregateScores() {
     final result = <int>[];
     const questionsPerCategory = 5;
     const totalCategories = 6;
-
     for (int i = 0; i < totalCategories; i++) {
       int sum = 0;
       for (int j = 0; j < questionsPerCategory; j++) {
@@ -99,7 +97,6 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
       }
       result.add(sum);
     }
-
     return result;
   }
 
@@ -119,8 +116,7 @@ class _PersonalityTestScreenState extends State<PersonalityTestScreen> {
         _advancing = false;
       });
     } else {
-      final aggregatedScores = _aggregateScores();
-      widget.onComplete(aggregatedScores);
+      widget.onComplete(_aggregateScores());
     }
   }
 
@@ -270,155 +266,6 @@ class _AnswerRow extends StatelessWidget {
   final void Function(int) onSelect;
 
   static const _unselected = Color(0xFFDADFE5);
-
-  static const _maxCircleSize = 60.0;
-
-  Widget _option(int score, String label, double size) {
-    final isSelected = selected == score;
-    return GestureDetector(
-      onTap: () => onSelect(score),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: _maxCircleSize,
-            height: _maxCircleSize,
-            child: Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isSelected ? accentColor : _unselected,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w500,
-              fontSize: 12,
-              height: 1.4,
-              color: Color(0xFF222222),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _option(1, '매우 아니다', 60),
-        _option(2, '아니다', 50),
-        _option(3, '보통', 35),
-        _option(4, '그렇다', 50),
-        _option(5, '매우 그렇다', 60),
-      ],
-    );
-  }
-}
-                    ),
-                  ],
-                ),
-              const SizedBox(height: 20),
-              widget.titleWidget ??
-                  Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 24,
-                      height: 32 / 24,
-                      color: _titleColor,
-                    ),
-                  ),
-              const SizedBox(height: 6),
-              Text(
-                widget.subtitle,
-                style: const TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 15,
-                  height: 22 / 15,
-                  color: _subtitleColor,
-                ),
-              ),
-              const Spacer(flex: 2),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.04, 0),
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: child,
-                  ),
-                ),
-                child: Container(
-                  key: ValueKey(_currentIndex),
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 25,
-                    vertical: 14,
-                  ),
-                  decoration: BoxDecoration(
-                    color: widget.cardBgColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    kPersonalityQuestions[_currentIndex],
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                      height: 1.6,
-                      color: _textColor,
-                    ),
-                  ),
-                ),
-              ),
-              const Spacer(flex: 2),
-              _AnswerRow(
-                selected: _scores[_currentIndex],
-                accentColor: widget.accentColor,
-                onSelect: _selectOption,
-              ),
-              const SizedBox(height: 36),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-  }
-}
-
-class _AnswerRow extends StatelessWidget {
-  const _AnswerRow({
-    required this.selected,
-    required this.accentColor,
-    required this.onSelect,
-  });
-
-  final int? selected;
-  final Color accentColor;
-  final void Function(int) onSelect;
-
-  static const _unselected = Color(0xFFDADFE5);
-
   static const _maxCircleSize = 60.0;
 
   Widget _option(int score, String label, double size) {

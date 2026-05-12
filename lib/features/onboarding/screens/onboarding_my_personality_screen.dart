@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'onboarding_ideal_personality_screen.dart';
+import 'personality_questions.dart';
 import 'personality_test_screen.dart';
 
 class OnboardingMyPersonalityScreen extends StatelessWidget {
@@ -15,6 +16,7 @@ class OnboardingMyPersonalityScreen extends StatelessWidget {
       subtitle: '성향을 분석할게요.',
       accentColor: const Color(0xFF208484),
       cardBgColor: const Color(0xFFE9F7F7),
+      questions: kPersonalityQuestions,
       onComplete: (scores) => Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => OnboardingIdealPersonalityScreen(
