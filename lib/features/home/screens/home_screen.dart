@@ -232,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            '(로고)',
+            '팔로우미',
             style: TextStyle(
               fontFamily: 'Pretendard',
               fontWeight: FontWeight.w700,
