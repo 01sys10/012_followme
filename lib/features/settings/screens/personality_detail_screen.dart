@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:follow_me/core/utils/personality_type_utils.dart';
+import 'package:follow_me/features/home/screens/home_screen.dart';
 import 'package:follow_me/features/settings/screens/personality_all_screen.dart';
+import 'package:follow_me/features/settings/screens/settings_tab_screen.dart';
 import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
 
 class PersonalityDetailScreen extends StatelessWidget {
@@ -41,11 +43,24 @@ class PersonalityDetailScreen extends StatelessWidget {
             selectedIndex: 2,
             onTap: (i) {
               if (i == 2) {
-                Navigator.of(context).popUntil(
-                  (route) => route.settings.name == '/settings' || route.isFirst,
+                Navigator.of(context).pushAndRemoveUntil(
+                  PageRouteBuilder(
+                    settings: const RouteSettings(name: '/settings'),
+                    pageBuilder: (ctx, anim, sec) => const SettingsTabScreen(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                  (route) => route.isFirst,
                 );
               } else {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pushAndRemoveUntil(
+                  PageRouteBuilder(
+                    pageBuilder: (ctx, anim, sec) => const HomeScreen(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                  (route) => false,
+                );
               }
             },
           ),
