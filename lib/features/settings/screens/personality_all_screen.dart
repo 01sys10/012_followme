@@ -36,7 +36,13 @@ class PersonalityAllScreen extends StatelessWidget {
           child: FloatingTabBar(
             selectedIndex: 2,
             onTap: (i) {
-              if (i != 2) Navigator.of(context).pop();
+              if (i == 2) {
+                Navigator.of(context).popUntil(
+                  (route) => route.settings.name == '/settings' || route.isFirst,
+                );
+              } else {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
             },
           ),
         ),
@@ -84,7 +90,7 @@ class PersonalityAllScreen extends StatelessWidget {
                     crossAxisCount: 3,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
-                    childAspectRatio: 0.85,
+                    childAspectRatio: 0.75,
                   ),
                   itemCount: 6,
                   itemBuilder: (ctx, index) => GestureDetector(
@@ -94,6 +100,7 @@ class PersonalityAllScreen extends StatelessWidget {
                           isIdeal: false,
                           scores: List<int>.from(_representativeScores[index]),
                           customTitle: _names[index],
+                          showAllButton: false,
                         ),
                       ),
                     ),
@@ -137,14 +144,14 @@ class _PersonalityGridCard extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Pretendard',
               fontWeight: FontWeight.w600,
-              fontSize: 16,
+              fontSize: 14,
               color: Color(0xFF262626),
             ),
           ),
           Expanded(
             child: Center(
               child: CustomPaint(
-                size: const Size(60, 55),
+                size: const Size(90, 82),
                 painter: _MiniRadarPainter(
                   scores: List<int>.from(_representativeScores[index]),
                 ),

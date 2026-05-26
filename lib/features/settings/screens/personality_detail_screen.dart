@@ -11,12 +11,14 @@ class PersonalityDetailScreen extends StatelessWidget {
     required this.scores,
     this.gender,
     this.customTitle,
+    this.showAllButton = true,
   });
 
   final bool isIdeal;
   final List<int> scores;
   final String? gender;
   final String? customTitle;
+  final bool showAllButton;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,13 @@ class PersonalityDetailScreen extends StatelessWidget {
           child: FloatingTabBar(
             selectedIndex: 2,
             onTap: (i) {
-              if (i != 2) Navigator.of(context).pop();
+              if (i == 2) {
+                Navigator.of(context).popUntil(
+                  (route) => route.settings.name == '/settings' || route.isFirst,
+                );
+              } else {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
             },
           ),
         ),
@@ -140,38 +148,39 @@ class PersonalityDetailScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // 다른 성향 보기 버튼
-            Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const PersonalityAllScreen(),
+            if (showAllButton) ...[
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const PersonalityAllScreen(),
+                      ),
                     ),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF2F2F2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      '다른 성향 보기',
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 13,
-                        color: Color(0xFF444444),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF2F2F2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        '다른 성향 보기',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                          color: Color(0xFF444444),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

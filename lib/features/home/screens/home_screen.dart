@@ -156,6 +156,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               } else if (i == 2) {
                 Navigator.of(context).push(
                   PageRouteBuilder(
+                    settings: const RouteSettings(name: '/settings'),
                     pageBuilder: (context, animation, secondary) => const SettingsTabScreen(),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
