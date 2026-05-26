@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:follow_me/core/utils/personality_type_utils.dart';
+import 'package:follow_me/features/home/screens/home_screen.dart';
 import 'package:follow_me/features/settings/screens/personality_all_screen.dart';
+import 'package:follow_me/features/settings/screens/settings_tab_screen.dart';
 import 'package:follow_me/shared/widgets/floating_tab_bar.dart';
 
 class PersonalityDetailScreen extends StatelessWidget {
@@ -10,17 +12,21 @@ class PersonalityDetailScreen extends StatelessWidget {
     required this.isIdeal,
     required this.scores,
     this.gender,
+    this.customTitle,
+    this.showAllButton = true,
   });
 
   final bool isIdeal;
   final List<int> scores;
   final String? gender;
+  final String? customTitle;
+  final bool showAllButton;
 
   @override
   Widget build(BuildContext context) {
     final color =
         isIdeal ? const Color(0xFFEEC22A) : const Color(0xFF208484);
-    final title = isIdeal ? '현재 이상향' : '현재 내 성향';
+    final title = customTitle ?? (isIdeal ? '현재 이상향' : '현재 내 성향');
     final personality = classifyPersonality(scores, gender: gender);
     final typeName = scores.isEmpty ? 'OO 성향' : personality.name;
     final description = scores.isEmpty
@@ -36,7 +42,26 @@ class PersonalityDetailScreen extends StatelessWidget {
           child: FloatingTabBar(
             selectedIndex: 2,
             onTap: (i) {
-              if (i != 2) Navigator.of(context).pop();
+              if (i == 2) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  PageRouteBuilder(
+                    settings: const RouteSettings(name: '/settings'),
+                    pageBuilder: (ctx, anim, sec) => const SettingsTabScreen(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                  (route) => route.isFirst,
+                );
+              } else {
+                Navigator.of(context).pushAndRemoveUntil(
+                  PageRouteBuilder(
+                    pageBuilder: (ctx, anim, sec) => const HomeScreen(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                  (route) => false,
+                );
+              }
             },
           ),
         ),
@@ -125,7 +150,7 @@ class PersonalityDetailScreen extends StatelessWidget {
                     Center(
                       child: SizedBox(
                         width: 200,
-                        height: 185,
+                        height: 210,
                         child: CustomPaint(
                           painter: _HexagonPainter(
                             color: color,
@@ -138,38 +163,39 @@ class PersonalityDetailScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            // 다른 성향 보기 버튼
-            Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const PersonalityAllScreen(),
+            if (showAllButton) ...[
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const PersonalityAllScreen(),
+                      ),
                     ),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF2F2F2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      '다른 성향 보기',
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 13,
-                        color: Color(0xFF444444),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF2F2F2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        '다른 성향 보기',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                          color: Color(0xFF444444),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -186,70 +212,77 @@ class _HexagonPainter extends CustomPainter {
   final Color color;
   final List<int> scores;
 
+  static const _labels = ['모험적', '사색적', '외향적', '주도적', '다정함', '논리적'];
+  static const _sides = 6;
+
   @override
   void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-    final maxRadius = size.width / 2.5;
-
-    final bgPaint = Paint()
-      ..color = color.withValues(alpha: 0.1)
-      ..style = PaintingStyle.fill;
-
-    const sides = 6;
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final maxRadius = size.width * 0.30;
+    final labelRadius = size.width * 0.44;
     final degToRad = math.pi / 180;
-    final bgPoints = <Offset>[];
-    for (int i = 0; i < sides; i++) {
-      final angle = (i * 60 - 90) * degToRad;
-      final x = centerX + maxRadius * math.cos(angle);
-      final y = centerY + maxRadius * math.sin(angle);
-      bgPoints.add(Offset(x, y));
-    }
 
+    // 배경 육각형
+    final bgPoints = <Offset>[
+      for (int i = 0; i < _sides; i++)
+        Offset(
+          cx + maxRadius * math.cos((i * 60 - 90) * degToRad),
+          cy + maxRadius * math.sin((i * 60 - 90) * degToRad),
+        ),
+    ];
     final bgPath = Path()..moveTo(bgPoints[0].dx, bgPoints[0].dy);
-    for (int i = 1; i < sides; i++) {
-      bgPath.lineTo(bgPoints[i].dx, bgPoints[i].dy);
-    }
+    for (int i = 1; i < _sides; i++) { bgPath.lineTo(bgPoints[i].dx, bgPoints[i].dy); }
     bgPath.close();
-    canvas.drawPath(bgPath, bgPaint);
 
-    final borderPaint = Paint()
-      ..color = color.withValues(alpha: 0.2)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    canvas.drawPath(bgPath, borderPaint);
+    canvas.drawPath(bgPath,
+        Paint()..color = color.withValues(alpha: 0.1)..style = PaintingStyle.fill);
+    canvas.drawPath(bgPath,
+        Paint()..color = color.withValues(alpha: 0.2)..style = PaintingStyle.stroke..strokeWidth = 1);
 
-    final dataPoints = <Offset>[];
-    for (int i = 0; i < sides; i++) {
-      final angle = (i * 60 - 90) * degToRad;
-      final normalized = ((i < scores.length ? scores[i] : 0) / 25).clamp(0.0, 1.0);
-      final radius = maxRadius * normalized;
-      final x = centerX + radius * math.cos(angle);
-      final y = centerY + radius * math.sin(angle);
-      dataPoints.add(Offset(x, y));
-    }
-
+    // 데이터 다각형
+    final dataPoints = <Offset>[
+      for (int i = 0; i < _sides; i++)
+        Offset(
+          cx + maxRadius * ((i < scores.length ? scores[i] : 0) / 25).clamp(0.0, 1.0) * math.cos((i * 60 - 90) * degToRad),
+          cy + maxRadius * ((i < scores.length ? scores[i] : 0) / 25).clamp(0.0, 1.0) * math.sin((i * 60 - 90) * degToRad),
+        ),
+    ];
     final dataPath = Path()..moveTo(dataPoints[0].dx, dataPoints[0].dy);
-    for (int i = 1; i < sides; i++) {
-      dataPath.lineTo(dataPoints[i].dx, dataPoints[i].dy);
-    }
+    for (int i = 1; i < _sides; i++) { dataPath.lineTo(dataPoints[i].dx, dataPoints[i].dy); }
     dataPath.close();
 
-    final fillPaint = Paint()
-      ..color = color.withValues(alpha: 0.3)
-      ..style = PaintingStyle.fill;
-    canvas.drawPath(dataPath, fillPaint);
+    canvas.drawPath(dataPath,
+        Paint()..color = color.withValues(alpha: 0.3)..style = PaintingStyle.fill);
+    canvas.drawPath(dataPath,
+        Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 2);
+    canvas.drawCircle(Offset(cx, cy), 4,
+        Paint()..color = color..style = PaintingStyle.fill);
 
-    final linePaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawPath(dataPath, linePaint);
+    // 라벨
+    for (int i = 0; i < _sides; i++) {
+      final angle = (i * 60 - 90) * degToRad;
+      final lx = cx + labelRadius * math.cos(angle);
+      final ly = cy + labelRadius * math.sin(angle);
 
-    final centerPointPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(centerX, centerY), 4, centerPointPaint);
+      final painter = TextPainter(
+        text: TextSpan(
+          text: _labels[i],
+          style: TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF333333),
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      painter.paint(
+        canvas,
+        Offset(lx - painter.width / 2, ly - painter.height / 2),
+      );
+    }
   }
 
   @override
