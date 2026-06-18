@@ -1,17 +1,71 @@
-# flutter_application_1
+# FolllowMe
 
-A new Flutter project.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+<img width="530" height="842" alt="A4 - 1" src="https://github.com/user-attachments/assets/001f2a4b-d180-4a7d-9c56-b9706649e36d" />
 
-A few resources to get you started if this is your first Flutter project:
+**개발 목적**
+---
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+현대인은 자신의 성향을 파악하고 싶어 하지만, MBTI 등 기존의 성격 검사는 결과를 알려줄 뿐 구체 적인 행동 변화로 연하지 못한다는 한계가 있다. 또한 일기 앱, 목표 관리 앱과 같은 자기계발 도구들은 사용자가 직접 계획을 수립해야 하므로 지속성이 낮고, 개인의 맥락을 반영하지 못한다는 문제를 지닌다.
+FollowMe는 이러한 문제를 해결하기 위해 다음 세 가지 목적으로 개발되었다.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. 사용자의 현재 성향과 이상향을 6 개의 정량적 지표로 수치화하여 자기 인식의 도구를 제공한다.
+2. 이상향과 현재의 차이(gap)를 분석하여 AI 가 매일 맞춤 행동 미션을 자동 설계함으로써, 사용자가 이상향에 가까워지는 구체적 경로를 제시한다.
+3. 미션 달성 기록과 일기 데이터를 누적 학습하여 AI 가 스스로 예측을 보정하는 Self-Correction 루프를 구현함으로써, 시간이 지날수록 더 정확한 개인화 서비스를 제공한다.
+
+**내용**
+---
+
+**서비스 소개 및 개요**
+FollowMe는 사용자의 성향·일정·행동 패턴을 바탕으로 내일을 예측하고, 이상향에 가까워지도록 미션을 제공하며, 예측과 실제를 비교해 AI가 스스로 보정하는 개인화 예측 AI 테라피 앱이다. 서비스는 크게 5단계 플로우로 구성된다.
+
+| 단계 | 이름 | 설명 |
+| --- | --- | --- |
+| 1 | 온보딩 | 성향 검사·이상향 설정·페르소나 부여 |
+| 2 | 시간표 입력 | 주간 고정 일정 등록 |
+| 3 | 예측 & 미션 | 내일 운세 브리핑 + 맞춤 미션 4개 제공 |
+| 4 | 일기 & 회고 | 일기 작성 및 미션 달성 체크 |
+| 5 | Self-Correction | 미션 달성 → 성향 점수 자동 갱신 |
+
+**기술 스택**
+
+| 구분 | 기술 |
+| --- | --- |
+| 프론트엔드 | Flutter (iOS / Andorid) |
+| 백엔드 | Python FastAPI (AWS EC2 배포) |
+| AI 모델 | OpenAI GPT-4o-mini (LLM), paraphrase-multilingual-MiniLM-L12-v2 (임베딩) |
+| 벡터 DB | FAISS IndexFlatL2 |
+| 로컬 저장 | SQLite (sqflite), SharedPreferences |
+
+**기대 효과**
+---
+
+**사용자 측면**
+
+• 매일 맞춤 미션 4 개가 자동 설계되어 “무엇을 해야 할지 모르겠다”는 자기계발의 가장 큰 장벽이 해소된다.
+
+• 6 개 성향 수치와 레이더 차트를 통해 자신을 데이터 기반으로 객관적으로 인식할 수 있다.
+
+• 미션 달성이 성향 점수에 반영되어 성장 과정을 수치로 확인할 수 있다.
+
+• 일기를 쌓을수록 AI 의 예측 정확도가 향상되어 갈수록 자신에게 맞는 서비스를 경험한다.
+
+• 캘린더 히트맵으로 꾸준한 기록 자체가 보람으로 시각화된다.
+
+**기술 측면**
+
+• 대규모 파인튜닝 없이 RAG 파이프라인만으로 개인화 AI 를 구현하는 경량 아키텍처를 실증한다.
+
+• 민감한 일기 데이터를 기기 로컬에 우선 저장하고 서버에는 벡터와 메타데이터를 보존하는 프라이버시 지향 하이브리드 구조를 제안한다.
+
+• LLM 제공자(OpenAI ↔ Ollama)를 환경변수 하나로 전환할 수 있는 유연한 서버 구조로 비용·환경 대응이 용이하다.
+
+**사회적 측면**
+
+• 심리 상담 비용 부담 없이 AI 기반 테라피 접근성을 확대한다.
+
+• 자기 이해 욕구가 높은 MZ 세대에게 디지털 친화적 자기계발 경험을 제공한다.
+
+<br/>
+<img width="200" alt="appicon" src="https://github.com/user-attachments/assets/4036bd25-a132-44b1-b4ae-8041ee3a855b" />
